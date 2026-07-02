@@ -1,0 +1,95 @@
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Poppins', sans-serif;
+}
+
+body {
+background: #0f0f0f;
+color: white;
+}
+
+/* HEADER */
+header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 20px 60px;
+border-bottom: 3px solid #ffcc00;
+background: #111;
+}
+
+.logo-area {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.logo-area img {
+width: 60px;
+height: 60px;
+}
+
+.logo-area h1 {
+color: #ffcc00;
+font-size: 24px;
+}
+
+.logo-area p {
+font-size: 14px;
+opacity: 0.8;
+}
+
+/* HERO */
+.hero {
+text-align: center;
+padding: 100px 20px;
+}
+
+.hero h2 {
+font-size: 48px;
+font-weight: 700;
+margin-bottom: 20px;
+}
+
+.hero p {
+font-size: 18px;
+opacity: 0.85;
+margin-bottom: 40px;
+}
+
+/* BUTTONS */
+.btn-group {
+display: flex;
+justify-content: center;
+gap: 20px;
+flex-wrap: wrap;
+}
+
+.btn {
+padding: 15px 30px;
+border-radius: 10px;
+text-decoration: none;
+font-weight: 600;
+transition: 0.3s;
+}
+
+.btn.yellow {
+background: #ffcc00;
+color: black;
+}
+
+.btn.yellow:hover {
+background: #e6b800;
+}
+
+.btn.outline {
+border: 2px solid #ffcc00;
+color: #ffcc00;
+}
+
+.btn.outline:hover {
+background: #ffcc00;
+color: black;
+}

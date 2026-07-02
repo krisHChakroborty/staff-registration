@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff Registration | FirstWave Fries EMS</title>
+
+  <link rel="stylesheet" href="../css/register.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="register-page">
+    <div class="register-card">
+      <div class="top-bar"></div>
+
+      <div class="brand">
+        <img src="../logo.png" alt="FirstWave Fries Logo" class="logo">
+        <div>
+          <h1>FirstWave Fries</h1>
+          <p>Staff Registration Form</p>
+        </div>
+      </div>
+
+      <form id="registerForm" class="register-form">
+        <div class="section-title">Basic Details</div>
+
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" placeholder="Enter full name" required />
+          </div>
+
+          <div class="input-group">
+            <label for="email">Email ID</label>
+            <input type="email" id="email" placeholder="Enter email address" required />
+          </div>
+
+          <div class="input-group">
+            <label for="mobile">Mobile Number</label>
+            <input type="tel" id="mobile" placeholder="Enter mobile number" required />
+          </div>
+
+          <div class="input-group">
+            <label for="emergencyContact">Emergency Contact Number</label>
+            <input type="tel" id="emergencyContact" placeholder="Enter emergency contact number" required />
+          </div>
+
+          <div class="input-group full-width">
+            <label for="address">Address</label>
+            <textarea id="address" rows="3" placeholder="Enter full address" required></textarea>
+          </div>
+        </div>
+
+        <div class="section-title">Job Details</div>
+
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="designation">Designation</label>
+            <input type="text" id="designation" placeholder="e.g. Crew, Cashier, Manager" required />
+          </div>
+
+          <div class="input-group">
+            <label for="experienceType">Experience Type</label>
+            <select id="experienceType" required>
+              <option value="">Select experience type</option>
+              <option value="Fresher">Fresher</option>
+              <option value="Experienced">Experienced</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="outletName">Outlet Name</label>
+            <input type="text" id="outletName" placeholder="Enter outlet name" required />
+          </div>
+
+          <div class="input-group">
+            <label for="salary">Salary</label>
+            <input type="number" id="salary" placeholder="Enter salary amount" required />
+          </div>
+        </div>
+
+        <div class="section-title">ID Details</div>
+
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="idType">ID Type</label>
+            <select id="idType" required>
+              <option value="">Select ID type</option>
+              <option value="Aadhaar Card">Aadhaar Card</option>
+              <option value="PAN Card">PAN Card</option>
+              <option value="Voter ID">Voter ID</option>
+              <option value="Driving License">Driving License</option>
+              <option value="Passport">Passport</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="input-group">
+            <label for="idNumber">ID Number</label>
+            <input type="text" id="idNumber" placeholder="Enter ID number" required />
+          </div>
+        </div>
+
+        <div class="section-title">Uploads</div>
+
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="photo">Upload Photo</label>
+            <input type="file" id="photo" accept="image/*" />
+            <small class="file-note" id="photoFileName">No photo selected</small>
+          </div>
+
+          <div class="input-group">
+            <label for="idProof">Upload ID Proof</label>
+            <input type="file" id="idProof" accept=".jpg,.jpeg,.png,.pdf" />
+            <small class="file-note" id="idProofFileName">No ID proof selected</small>
+          </div>
+
+          <div class="input-group full-width">
+            <label for="documents">Upload Other Documents</label>
+            <input type="file" id="documents" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" />
+            <small class="file-note" id="documentsFileName">No documents selected</small>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="submit-btn">Register Employee</button>
+          <a href="../index.html" class="back-link">← Back to Home</a>
+        </div>
+
+        <p id="message" class="message"></p>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="../js/register.js"></script>
+</body>
+</html>

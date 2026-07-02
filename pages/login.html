@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login | FirstWave Fries EMS</title>
+
+  <link rel="stylesheet" href="../css/login.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="login-container">
+    <div class="login-card">
+      <div class="top-bar"></div>
+
+      <div class="brand">
+        <img src="../logo.png" alt="FirstWave Fries Logo" class="logo">
+        <h1>FirstWave Fries</h1>
+        <p>Admin Login Panel</p>
+      </div>
+
+      <form id="loginForm" class="login-form">
+        <div class="input-group">
+          <label for="email">Admin Email</label>
+          <input type="email" id="email" placeholder="Enter admin email" required>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+
+        <p id="message" class="message"></p>
+      </form>
+
+      <div class="bottom-links">
+        <a href="../index.html">← Back to Home</a>
+        <a href="register.html">Staff Registration</a>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../js/login.js"></script>
+</body>
+</html>
