@@ -1,46 +1,45 @@
 import { auth, db } from "../firebase-config.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
 import {
   collection,
   getDocs,
   doc,
   updateDoc,
   deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-// ---------- Top buttons / table ----------
+// =========================
+// Top section / table
+// =========================
 const logoutBtn = document.getElementById("logoutBtn");
 const employeeTableBody = document.getElementById("employeeTableBody");
 const totalEmployees = document.getElementById("totalEmployees");
 
-// ---------- Main modal ----------
+// =========================
+// Modal
+// =========================
 const employeeModal = document.getElementById("employeeModal");
 const closeModalBtn = document.getElementById("closeModalBtn");
 const modalEmployeeTitle = document.getElementById("modalEmployeeTitle");
 
-// ---------- Preview modal ----------
-const previewModal = document.getElementById("previewModal");
-const closePreviewBtn = document.getElementById("closePreviewBtn");
-const previewBody = document.getElementById("previewBody");
-
-// ---------- Main action buttons ----------
+// =========================
+// Action buttons
+// =========================
 const editEmployeeBtn = document.getElementById("editEmployeeBtn");
 const saveEmployeeBtn = document.getElementById("saveEmployeeBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-// ---------- Filters ----------
+// =========================
+// Filters
+// =========================
 const searchName = document.getElementById("searchName");
 const searchOutlet = document.getElementById("searchOutlet");
-const searchJoiningDateFrom = document.getElementById("searchJoiningDateFrom");
-const searchJoiningDateTo = document.getElementById("searchJoiningDateTo");
 const searchBtn = document.getElementById("searchBtn");
 const resetBtn = document.getElementById("resetBtn");
 
-// ---------- Profile view elements ----------
-const modalPhotoPreview = document.getElementById("modalPhotoPreview");
-const zoomPhotoBtn = document.getElementById("zoomPhotoBtn");
-const downloadPhotoBtn = document.getElementById("downloadPhotoBtn");
-
+// =========================
+// View fields
+// =========================
 const viewFullName = document.getElementById("viewFullName");
 const viewEmail = document.getElementById("viewEmail");
 const viewMobile = document.getElementById("viewMobile");
@@ -53,7 +52,9 @@ const viewSalary = document.getElementById("viewSalary");
 const viewIdType = document.getElementById("viewIdType");
 const viewIdNumber = document.getElementById("viewIdNumber");
 
-// ---------- Edit inputs ----------
+// =========================
+// Edit fields
+// =========================
 const editFullName = document.getElementById("editFullName");
 const editEmail = document.getElementById("editEmail");
 const editMobile = document.getElementById("editMobile");
@@ -66,28 +67,16 @@ const editSalary = document.getElementById("editSalary");
 const editIdType = document.getElementById("editIdType");
 const editIdNumber = document.getElementById("editIdNumber");
 
-// ---------- Upload edit sections ----------
-const editPhotoWrap = document.getElementById("editPhotoWrap");
-const editIdProofWrap = document.getElementById("editIdProofWrap");
-const editDocumentsWrap = document.getElementById("editDocumentsWrap");
-
-const editPhotoInput = document.getElementById("editPhotoInput");
-const editIdProofInput = document.getElementById("editIdProofInput");
-const editDocumentsInput = document.getElementById("editDocumentsInput");
-
-// ---------- Document sections ----------
-const idProofPreviewArea = document.getElementById("idProofPreviewArea");
-const downloadIdProofBtn = document.getElementById("downloadIdProofBtn");
-const documentsGrid = document.getElementById("documentsGrid");
-
-// ---------- State ----------
+// =========================
+// State
+// =========================
 let employeesCache = [];
 let currentEmployee = null;
 let editMode = false;
 
-// =====================================================
+// =========================
 // Logout
-// =====================================================
+// =========================
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
@@ -99,157 +88,9 @@ if (logoutBtn) {
   });
 }
 
-// =====================================================
+// =========================
 // Helpers
-// =====================================================
-function isImage(type = "", dataUrl = "", fileName = "") {
-  return (
-    type.startsWith("image/") ||
-    dataUrl.startsWith("data:image") ||
-    /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName)
-  );
-}
-
-function isPdf(type = "", dataUrl = "", fileName = "") {
-  return (
-    type === "application/pdf" ||
-    dataUrl.startsWith("data:application/pdf") ||
-    /\.pdf$/i.test(fileName)
-  );
-}
-
-function fileToDataURL(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve("");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error("Failed to read file"));
-    reader.readAsDataURL(file);
-  });
-}
-
-async function filesToDataArray(files) {
-  const arr = [];
-  for (const file of files) {
-    const dataUrl = await fileToDataURL(file);
-    arr.push({
-      name: file.name,
-      type: file.type || "",
-      size: file.size || 0,
-      dataUrl
-    });
-  }
-  return arr;
-}
-
-function downloadDataUrl(dataUrl, fileName = "download") {
-  if (!dataUrl) {
-    alert("No file available");
-    return;
-  }
-
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = fileName || "download";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-function showPreview({ dataUrl = "", type = "", name = "" }) {
-  if (!dataUrl) {
-    alert("Preview not available");
-    return;
-  }
-
-  previewBody.innerHTML = "";
-
-  const title = document.createElement("div");
-  title.className = "preview-file-name";
-  title.textContent = name || "Preview";
-  previewBody.appendChild(title);
-
-  if (isImage(type, dataUrl, name)) {
-    const img = document.createElement("img");
-    img.src = dataUrl;
-    img.alt = name || "Preview";
-    previewBody.appendChild(img);
-  } else if (isPdf(type, dataUrl, name)) {
-    const embed = document.createElement("embed");
-    embed.src = dataUrl;
-    embed.type = "application/pdf";
-    previewBody.appendChild(embed);
-  } else {
-    const p = document.createElement("p");
-    p.style.color = "#ddd";
-    p.style.textAlign = "center";
-    p.textContent = "Preview not available for this file type. Please use download.";
-    previewBody.appendChild(p);
-  }
-
-  previewModal.classList.remove("hidden");
-}
-
-function formatJoiningDate(dateValue) {
-  if (!dateValue) return "N/A";
-
-  try {
-    if (typeof dateValue === "string") {
-      const date = new Date(dateValue);
-      if (!isNaN(date)) return date.toLocaleDateString("en-GB");
-      return dateValue;
-    }
-
-    if (dateValue.seconds) {
-      const date = new Date(dateValue.seconds * 1000);
-      return date.toLocaleDateString("en-GB");
-    }
-
-    return "N/A";
-  } catch {
-    return "N/A";
-  }
-}
-
-function getJoiningDateValue(emp) {
-  return emp.joiningDate || emp.dateOfJoining || emp.joinDate || "";
-}
-
-function normalizeDateForCompare(value) {
-  if (!value) return "";
-
-  try {
-    if (typeof value === "string") {
-      const date = new Date(value);
-      if (!isNaN(date)) {
-        const yyyy = date.getFullYear();
-        const mm = String(date.getMonth() + 1).padStart(2, "0");
-        const dd = String(date.getDate()).padStart(2, "0");
-        return `${yyyy}-${mm}-${dd}`;
-      }
-
-      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
-      return "";
-    }
-
-    if (value.seconds) {
-      const date = new Date(value.seconds * 1000);
-      const yyyy = date.getFullYear();
-      const mm = String(date.getMonth() + 1).padStart(2, "0");
-      const dd = String(date.getDate()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd}`;
-    }
-
-    return "";
-  } catch {
-    return "";
-  }
-}
-
+// =========================
 function setEditMode(enabled) {
   editMode = enabled;
 
@@ -259,86 +100,56 @@ function setEditMode(enabled) {
   viewFields.forEach(el => el.classList.toggle("hidden", enabled));
   editFields.forEach(el => el.classList.toggle("hidden", !enabled));
 
-  if (editEmployeeBtn) editEmployeeBtn.classList.toggle("hidden", enabled);
-  if (saveEmployeeBtn) saveEmployeeBtn.classList.toggle("hidden", !enabled);
-  if (cancelEditBtn) cancelEditBtn.classList.toggle("hidden", !enabled);
-
-  if (editPhotoWrap) editPhotoWrap.classList.toggle("hidden", !enabled);
-  if (editIdProofWrap) editIdProofWrap.classList.toggle("hidden", !enabled);
-  if (editDocumentsWrap) editDocumentsWrap.classList.toggle("hidden", !enabled);
+  editEmployeeBtn.classList.toggle("hidden", enabled);
+  saveEmployeeBtn.classList.toggle("hidden", !enabled);
+  cancelEditBtn.classList.toggle("hidden", !enabled);
 }
 
 function fillEditInputs(emp) {
-  if (editFullName) editFullName.value = emp.fullName || "";
-  if (editEmail) editEmail.value = emp.email || "";
-  if (editMobile) editMobile.value = emp.mobile || "";
-  if (editEmergency) editEmergency.value = emp.emergencyContact || "";
-  if (editAddress) editAddress.value = emp.address || "";
-  if (editDesignation) editDesignation.value = emp.designation || "";
-  if (editExperience) editExperience.value = emp.experienceType || "Fresher";
-  if (editOutlet) editOutlet.value = emp.outletName || "";
-  if (editSalary) editSalary.value = emp.salary || "";
-  if (editIdType) editIdType.value = emp.idType || "";
-  if (editIdNumber) editIdNumber.value = emp.idNumber || "";
+  editFullName.value = emp.fullName || "";
+  editEmail.value = emp.email || "";
+  editMobile.value = emp.mobile || "";
+  editEmergency.value = emp.emergencyContact || "";
+  editAddress.value = emp.address || "";
+  editDesignation.value = emp.designation || "";
+  editExperience.value = emp.experienceType || "";
+  editOutlet.value = emp.outletName || "";
+  editSalary.value = emp.salary || "";
+  editIdType.value = emp.idType || "";
+  editIdNumber.value = emp.idNumber || "";
 }
 
-// =====================================================
-// ID Proof render
-// =====================================================
-function renderIdProof(emp) {
-  if (!idProofPreviewArea) return;
-  idProofPreviewArea.innerHTML = `<p>No ID proof uploaded</p>`;
-}
-
-// =====================================================
-// Other documents render
-// =====================================================
-function renderDocuments(emp) {
-  if (!documentsGrid) return;
-  documentsGrid.innerHTML = `<p class="no-docs-text">No documents uploaded</p>`;
-}
-
-// =====================================================
-// Open employee modal
-// =====================================================
 function openEmployeeModal(emp) {
   currentEmployee = { ...emp };
 
-  if (modalPhotoPreview) modalPhotoPreview.src = "../assets/logo.png";
-  if (modalEmployeeTitle) modalEmployeeTitle.textContent = emp.fullName || "Employee Name";
+  modalEmployeeTitle.textContent = emp.fullName || "Employee Name";
 
-  if (viewFullName) viewFullName.textContent = emp.fullName || "N/A";
-  if (viewEmail) viewEmail.textContent = emp.email || "N/A";
-  if (viewMobile) viewMobile.textContent = emp.mobile || "N/A";
-  if (viewEmergency) viewEmergency.textContent = emp.emergencyContact || "N/A";
-  if (viewAddress) viewAddress.textContent = emp.address || "N/A";
-  if (viewDesignation) viewDesignation.textContent = emp.designation || "N/A";
-  if (viewExperience) viewExperience.textContent = emp.experienceType || "N/A";
-  if (viewOutlet) viewOutlet.textContent = emp.outletName || "N/A";
-  if (viewSalary) viewSalary.textContent = emp.salary ? `₹ ${emp.salary}` : "N/A";
-  if (viewIdType) viewIdType.textContent = emp.idType || "N/A";
-  if (viewIdNumber) viewIdNumber.textContent = emp.idNumber || "N/A";
+  viewFullName.textContent = emp.fullName || "N/A";
+  viewEmail.textContent = emp.email || "N/A";
+  viewMobile.textContent = emp.mobile || "N/A";
+  viewEmergency.textContent = emp.emergencyContact || "N/A";
+  viewAddress.textContent = emp.address || "N/A";
+  viewDesignation.textContent = emp.designation || "N/A";
+  viewExperience.textContent = emp.experienceType || "N/A";
+  viewOutlet.textContent = emp.outletName || "N/A";
+  viewSalary.textContent = emp.salary ? `₹ ${emp.salary}` : "N/A";
+  viewIdType.textContent = emp.idType || "N/A";
+  viewIdNumber.textContent = emp.idNumber || "N/A";
 
   fillEditInputs(emp);
-  renderIdProof(emp);
-  renderDocuments(emp);
-
   setEditMode(false);
-  if (employeeModal) employeeModal.classList.remove("hidden");
+  employeeModal.classList.remove("hidden");
 }
 
-// =====================================================
-// Render employee table
-// =====================================================
 function renderEmployees(list) {
   if (!employeeTableBody) return;
 
-  if (totalEmployees) totalEmployees.textContent = list.length;
+  totalEmployees.textContent = list.length;
 
   if (!list.length) {
     employeeTableBody.innerHTML = `
       <tr>
-        <td colspan="8" class="empty-row">No employees found.</td>
+        <td colspan="7" class="empty-row">No employees found.</td>
       </tr>
     `;
     return;
@@ -348,20 +159,16 @@ function renderEmployees(list) {
 
   list.forEach(emp => {
     const tr = document.createElement("tr");
-    const joiningDate = formatJoiningDate(getJoiningDateValue(emp));
 
     tr.innerHTML = `
-      <td>
-        <img src="../assets/logo.png" alt="${emp.fullName || "Employee"}" class="employee-photo">
-      </td>
       <td>
         <button class="employee-name-btn" type="button">${emp.fullName || "N/A"}</button>
       </td>
       <td>${emp.mobile || "N/A"}</td>
       <td>${emp.email || "N/A"}</td>
       <td>${emp.designation || "N/A"}</td>
+      <td>${emp.experienceType || "N/A"}</td>
       <td>${emp.outletName || "N/A"}</td>
-      <td>${joiningDate}</td>
       <td>
         <button class="delete-btn" type="button">Delete</button>
       </td>
@@ -389,48 +196,27 @@ function renderEmployees(list) {
   });
 }
 
-// =====================================================
-// Filters
-// =====================================================
 function applyFilters() {
-  const nameValue = searchName ? searchName.value.trim().toLowerCase() : "";
-  const outletValue = searchOutlet ? searchOutlet.value.trim().toLowerCase() : "";
-  const joiningFrom = searchJoiningDateFrom ? searchJoiningDateFrom.value : "";
-  const joiningTo = searchJoiningDateTo ? searchJoiningDateTo.value : "";
+  const nameValue = searchName.value.trim().toLowerCase();
+  const outletValue = searchOutlet.value.trim().toLowerCase();
 
   const filtered = employeesCache.filter(emp => {
     const fullName = (emp.fullName || "").toLowerCase();
     const outletName = (emp.outletName || "").toLowerCase();
 
-    const joiningRaw = getJoiningDateValue(emp);
-    const employeeDate = normalizeDateForCompare(joiningRaw);
-
-    let fromMatch = true;
-    let toMatch = true;
-
-    if (joiningFrom) fromMatch = employeeDate && employeeDate >= joiningFrom;
-    if (joiningTo) toMatch = employeeDate && employeeDate <= joiningTo;
-
-    return (
-      fullName.includes(nameValue) &&
-      outletName.includes(outletValue) &&
-      fromMatch &&
-      toMatch
-    );
+    return fullName.includes(nameValue) && outletName.includes(outletValue);
   });
 
   renderEmployees(filtered);
 }
 
-// =====================================================
+// =========================
 // Load employees
-// =====================================================
+// =========================
 async function loadEmployees() {
-  if (!employeeTableBody) return;
-
   employeeTableBody.innerHTML = `
     <tr>
-      <td colspan="8" class="empty-row">Loading employees...</td>
+      <td colspan="7" class="empty-row">Loading employees...</td>
     </tr>
   `;
 
@@ -450,18 +236,18 @@ async function loadEmployees() {
     console.error("Error loading employees:", error);
     employeeTableBody.innerHTML = `
       <tr>
-        <td colspan="8" class="empty-row">Failed to load employees.</td>
+        <td colspan="7" class="empty-row">Failed to load employees.</td>
       </tr>
     `;
   }
 }
 
-// =====================================================
-// Close modals
-// =====================================================
+// =========================
+// Modal close
+// =========================
 if (closeModalBtn) {
   closeModalBtn.addEventListener("click", () => {
-    if (employeeModal) employeeModal.classList.add("hidden");
+    employeeModal.classList.add("hidden");
     setEditMode(false);
   });
 }
@@ -475,16 +261,28 @@ if (employeeModal) {
   });
 }
 
-if (closePreviewBtn) {
-  closePreviewBtn.addEventListener("click", () => {
-    if (previewModal) previewModal.classList.add("hidden");
-    if (previewBody) previewBody.innerHTML = "";
+// =========================
+// Edit buttons
+// =========================
+if (editEmployeeBtn) {
+  editEmployeeBtn.addEventListener("click", () => {
+    if (!currentEmployee) return;
+    fillEditInputs(currentEmployee);
+    setEditMode(true);
   });
 }
 
-// =====================================================
+if (cancelEditBtn) {
+  cancelEditBtn.addEventListener("click", () => {
+    if (!currentEmployee) return;
+    fillEditInputs(currentEmployee);
+    setEditMode(false);
+  });
+}
+
+// =========================
 // Save employee changes
-// =====================================================
+// =========================
 if (saveEmployeeBtn) {
   saveEmployeeBtn.addEventListener("click", async () => {
     if (!currentEmployee?.docId) return;
@@ -493,22 +291,26 @@ if (saveEmployeeBtn) {
 
     try {
       const updatedData = {
-        fullName: editFullName ? editFullName.value.trim() : "",
-        email: editEmail ? editEmail.value.trim() : "",
-        mobile: editMobile ? editMobile.value.trim() : "",
-        emergencyContact: editEmergency ? editEmergency.value.trim() : "",
-        address: editAddress ? editAddress.value.trim() : "",
-        designation: editDesignation ? editDesignation.value.trim() : "",
-        experienceType: editExperience ? editExperience.value : "",
-        outletName: editOutlet ? editOutlet.value.trim() : "",
-        salary: editSalary ? Number(editSalary.value || 0) : 0,
-        idType: editIdType ? editIdType.value : "",
-        idNumber: editIdNumber ? editIdNumber.value.trim() : ""
+        fullName: editFullName.value.trim(),
+        email: editEmail.value.trim(),
+        mobile: editMobile.value.trim(),
+        emergencyContact: editEmergency.value.trim(),
+        address: editAddress.value.trim(),
+        designation: editDesignation.value.trim(),
+        experienceType: editExperience.value,
+        outletName: editOutlet.value.trim(),
+        salary: Number(editSalary.value || 0),
+        idType: editIdType.value,
+        idNumber: editIdNumber.value.trim()
       };
 
       await updateDoc(doc(db, "employees", currentEmployee.docId), updatedData);
 
-      currentEmployee = { ...currentEmployee, ...updatedData };
+      currentEmployee = {
+        ...currentEmployee,
+        ...updatedData
+      };
+
       openEmployeeModal(currentEmployee);
       await loadEmployees();
 
@@ -522,24 +324,34 @@ if (saveEmployeeBtn) {
   });
 }
 
-// =====================================================
+// =========================
 // Search / Reset
-// =====================================================
+// =========================
 if (searchBtn) {
   searchBtn.addEventListener("click", applyFilters);
 }
 
 if (resetBtn) {
   resetBtn.addEventListener("click", () => {
-    if (searchName) searchName.value = "";
-    if (searchOutlet) searchOutlet.value = "";
-    if (searchJoiningDateFrom) searchJoiningDateFrom.value = "";
-    if (searchJoiningDateTo) searchJoiningDateTo.value = "";
+    searchName.value = "";
+    searchOutlet.value = "";
     renderEmployees(employeesCache);
   });
 }
 
-// =====================================================
+if (searchName) {
+  searchName.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") applyFilters();
+  });
+}
+
+if (searchOutlet) {
+  searchOutlet.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") applyFilters();
+  });
+}
+
+// =========================
 // Init
-// =====================================================
+// =========================
 loadEmployees();

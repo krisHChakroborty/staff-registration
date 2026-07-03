@@ -13,7 +13,7 @@
   <!-- Header -->
   <header class="dashboard-header">
     <div class="logo-area">
-      <img src="../logo.png" alt="FirstWave Fries Logo" class="brand-logo" />
+      <img src="../assets/logo.png" alt="FirstWave Fries Logo" class="brand-logo" />
       <div>
         <h1>FirstWave Fries</h1>
         <p>Employee Management Dashboard</p>
@@ -34,7 +34,7 @@
       </div>
     </section>
 
-    <!-- Employee List Card -->
+    <!-- Employee List -->
     <section class="employee-card">
       <div class="card-top">
         <div>
@@ -55,40 +55,29 @@
           <input type="text" id="searchOutlet" placeholder="Search by outlet" />
         </div>
 
-        <div class="filter-group">
-          <label for="searchJoiningDateFrom">Joining Date From</label>
-          <input type="date" id="searchJoiningDateFrom" />
-        </div>
-
-        <div class="filter-group">
-          <label for="searchJoiningDateTo">Joining Date To</label>
-          <input type="date" id="searchJoiningDateTo" />
-        </div>
-
         <div class="filter-buttons">
-          <button id="searchBtn" class="action-btn">Search</button>
-          <button id="resetBtn" class="action-btn secondary-btn">Reset</button>
+          <button id="searchBtn" class="action-btn" type="button">Search</button>
+          <button id="resetBtn" class="action-btn secondary-btn" type="button">Reset</button>
         </div>
       </div>
 
-      <!-- Employee Table -->
+      <!-- Table -->
       <div class="table-wrapper">
         <table class="employee-table">
           <thead>
             <tr>
-              <th>Photo</th>
               <th>Employee Name</th>
               <th>Mobile</th>
               <th>Email</th>
               <th>Designation</th>
+              <th>Experience</th>
               <th>Outlet</th>
-              <th>Joining Date</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="employeeTableBody">
             <tr>
-              <td colspan="8" class="empty-row">Loading employees...</td>
+              <td colspan="7" class="empty-row">Loading employees...</td>
             </tr>
           </tbody>
         </table>
@@ -99,30 +88,15 @@
   <!-- Employee Profile Modal -->
   <div id="employeeModal" class="modal hidden">
     <div class="modal-content employee-modal-content">
-      <button id="closeModalBtn" class="close-btn">&times;</button>
+      <button id="closeModalBtn" class="close-btn" type="button">&times;</button>
 
       <div class="employee-modal-header">
-        <div class="employee-photo-section">
-          <img id="modalPhotoPreview" src="../logo.png" alt="Employee Photo" class="modal-photo" />
-
-          <div class="photo-actions">
-            <button id="zoomPhotoBtn" class="small-btn" type="button">Zoom</button>
-            <button id="downloadPhotoBtn" class="small-btn" type="button">Download</button>
-          </div>
-
-          <div id="editPhotoWrap" class="edit-upload-wrap hidden">
-            <label for="editPhotoInput">Change Photo</label>
-            <input type="file" id="editPhotoInput" accept="image/*" />
-          </div>
-        </div>
-
         <div class="employee-basic-info">
           <h2 id="modalEmployeeTitle">Employee Name</h2>
           <p class="modal-subtitle">Employee Full Profile</p>
         </div>
       </div>
 
-      <!-- Employee Details -->
       <div class="modal-grid">
 
         <div class="modal-field">
@@ -149,7 +123,7 @@
           <input type="text" id="editEmergency" class="edit-input hidden" />
         </div>
 
-        <div class="modal-field">
+        <div class="modal-field full-width">
           <label>Address</label>
           <p id="viewAddress">N/A</p>
           <textarea id="editAddress" class="edit-input hidden" rows="3"></textarea>
@@ -186,8 +160,9 @@
           <label>ID Type</label>
           <p id="viewIdType">N/A</p>
           <select id="editIdType" class="edit-input hidden">
-            <option value="Aadhaar Card">Aadhaar Card</option>
-            <option value="PAN Card">PAN Card</option>
+            <option value="">Select ID type</option>
+            <option value="Aadhaar">Aadhaar</option>
+            <option value="PAN">PAN</option>
             <option value="Voter ID">Voter ID</option>
             <option value="Driving License">Driving License</option>
             <option value="Passport">Passport</option>
@@ -202,53 +177,11 @@
 
       </div>
 
-      <!-- ID Proof Section -->
-      <div class="doc-section">
-        <div class="doc-section-header">
-          <h3>ID Proof</h3>
-          <button id="downloadIdProofBtn" class="small-btn" type="button">Download ID Proof</button>
-        </div>
-
-        <div id="idProofPreviewArea" class="id-proof-preview-area">
-          <p>No ID proof uploaded</p>
-        </div>
-
-        <div id="editIdProofWrap" class="edit-upload-wrap hidden">
-          <label for="editIdProofInput">Replace ID Proof</label>
-          <input type="file" id="editIdProofInput" accept="image/*,.pdf" />
-        </div>
-      </div>
-
-      <!-- Other Documents -->
-      <div class="doc-section">
-        <div class="doc-section-header">
-          <h3>Employee Documents</h3>
-        </div>
-
-        <div id="documentsGrid" class="documents-grid">
-          <p class="no-docs-text">No documents uploaded</p>
-        </div>
-
-        <div id="editDocumentsWrap" class="edit-upload-wrap hidden">
-          <label for="editDocumentsInput">Replace / Add Documents</label>
-          <input type="file" id="editDocumentsInput" multiple accept="image/*,.pdf,.doc,.docx" />
-        </div>
-      </div>
-
-      <!-- Modal Buttons -->
       <div class="modal-actions">
         <button id="editEmployeeBtn" class="action-btn" type="button">Edit Employee</button>
         <button id="saveEmployeeBtn" class="action-btn hidden" type="button">Save Changes</button>
         <button id="cancelEditBtn" class="action-btn secondary-btn hidden" type="button">Cancel</button>
       </div>
-    </div>
-  </div>
-
-  <!-- Preview Modal -->
-  <div id="previewModal" class="modal hidden">
-    <div class="modal-content preview-modal-content">
-      <button id="closePreviewBtn" class="close-btn">&times;</button>
-      <div id="previewBody" class="preview-body"></div>
     </div>
   </div>
 
