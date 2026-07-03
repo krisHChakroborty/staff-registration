@@ -1,12 +1,12 @@
 import { auth, db } from "../firebase-config.js";
-import { signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+import { signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import {
   collection,
   getDocs,
   doc,
   updateDoc,
   deleteDoc
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 // ---------- Top buttons / table ----------
 const logoutBtn = document.getElementById("logoutBtn");
@@ -256,197 +256,46 @@ function setEditMode(enabled) {
   const viewFields = document.querySelectorAll(".modal-field p");
   const editFields = document.querySelectorAll(".edit-input");
 
-  viewFields.forEach(el => {
-    el.classList.toggle("hidden", enabled);
-  });
+  viewFields.forEach(el => el.classList.toggle("hidden", enabled));
+  editFields.forEach(el => el.classList.toggle("hidden", !enabled));
 
-  editFields.forEach(el => {
-    el.classList.toggle("hidden", !enabled);
-  });
+  if (editEmployeeBtn) editEmployeeBtn.classList.toggle("hidden", enabled);
+  if (saveEmployeeBtn) saveEmployeeBtn.classList.toggle("hidden", !enabled);
+  if (cancelEditBtn) cancelEditBtn.classList.toggle("hidden", !enabled);
 
-  editEmployeeBtn.classList.toggle("hidden", enabled);
-  saveEmployeeBtn.classList.toggle("hidden", !enabled);
-  cancelEditBtn.classList.toggle("hidden", !enabled);
-
-  editPhotoWrap.classList.toggle("hidden", !enabled);
-  editIdProofWrap.classList.toggle("hidden", !enabled);
-  editDocumentsWrap.classList.toggle("hidden", !enabled);
+  if (editPhotoWrap) editPhotoWrap.classList.toggle("hidden", !enabled);
+  if (editIdProofWrap) editIdProofWrap.classList.toggle("hidden", !enabled);
+  if (editDocumentsWrap) editDocumentsWrap.classList.toggle("hidden", !enabled);
 }
 
 function fillEditInputs(emp) {
-  editFullName.value = emp.fullName || "";
-  editEmail.value = emp.email || "";
-  editMobile.value = emp.mobile || "";
-  editEmergency.value = emp.emergencyContact || "";
-  editAddress.value = emp.address || "";
-  editDesignation.value = emp.designation || "";
-  editExperience.value = emp.experienceType || "Fresher";
-  editOutlet.value = emp.outletName || "";
-  editSalary.value = emp.salary || "";
-  editIdType.value = emp.idType || "Aadhaar Card";
-  editIdNumber.value = emp.idNumber || "";
+  if (editFullName) editFullName.value = emp.fullName || "";
+  if (editEmail) editEmail.value = emp.email || "";
+  if (editMobile) editMobile.value = emp.mobile || "";
+  if (editEmergency) editEmergency.value = emp.emergencyContact || "";
+  if (editAddress) editAddress.value = emp.address || "";
+  if (editDesignation) editDesignation.value = emp.designation || "";
+  if (editExperience) editExperience.value = emp.experienceType || "Fresher";
+  if (editOutlet) editOutlet.value = emp.outletName || "";
+  if (editSalary) editSalary.value = emp.salary || "";
+  if (editIdType) editIdType.value = emp.idType || "";
+  if (editIdNumber) editIdNumber.value = emp.idNumber || "";
 }
 
 // =====================================================
 // ID Proof render
 // =====================================================
 function renderIdProof(emp) {
-  idProofPreviewArea.innerHTML = "";
-
-  if (!emp.idProofData) {
-    idProofPreviewArea.innerHTML = `<p>No ID proof uploaded</p>`;
-    return;
-  }
-
-  if (isImage(emp.idProofType, emp.idProofData, emp.idProofName)) {
-    const img = document.createElement("img");
-    img.src = emp.idProofData;
-    img.alt = emp.idProofName || "ID Proof";
-    img.addEventListener("click", () => {
-      showPreview({
-        dataUrl: emp.idProofData,
-        type: emp.idProofType,
-        name: emp.idProofName
-      });
-    });
-
-    const name = document.createElement("p");
-    name.textContent = emp.idProofName || "ID Proof";
-
-    const actions = document.createElement("div");
-    actions.className = "doc-actions";
-
-    const zoomBtn = document.createElement("button");
-    zoomBtn.className = "small-btn";
-    zoomBtn.textContent = "Zoom";
-    zoomBtn.type = "button";
-    zoomBtn.addEventListener("click", () => {
-      showPreview({
-        dataUrl: emp.idProofData,
-        type: emp.idProofType,
-        name: emp.idProofName
-      });
-    });
-
-    const downloadBtn = document.createElement("button");
-    downloadBtn.className = "small-btn";
-    downloadBtn.textContent = "Download";
-    downloadBtn.type = "button";
-    downloadBtn.addEventListener("click", () => {
-      downloadDataUrl(emp.idProofData, emp.idProofName || "id-proof");
-    });
-
-    actions.appendChild(zoomBtn);
-    actions.appendChild(downloadBtn);
-
-    idProofPreviewArea.appendChild(img);
-    idProofPreviewArea.appendChild(name);
-    idProofPreviewArea.appendChild(actions);
-  } else if (isPdf(emp.idProofType, emp.idProofData, emp.idProofName)) {
-    const name = document.createElement("p");
-    name.textContent = emp.idProofName || "ID Proof PDF";
-
-    const actions = document.createElement("div");
-    actions.className = "doc-actions";
-
-    const previewBtn = document.createElement("button");
-    previewBtn.className = "small-btn";
-    previewBtn.textContent = "Preview";
-    previewBtn.type = "button";
-    previewBtn.addEventListener("click", () => {
-      showPreview({
-        dataUrl: emp.idProofData,
-        type: emp.idProofType,
-        name: emp.idProofName
-      });
-    });
-
-    const downloadBtn = document.createElement("button");
-    downloadBtn.className = "small-btn";
-    downloadBtn.textContent = "Download";
-    downloadBtn.type = "button";
-    downloadBtn.addEventListener("click", () => {
-      downloadDataUrl(emp.idProofData, emp.idProofName || "id-proof.pdf");
-    });
-
-    actions.appendChild(previewBtn);
-    actions.appendChild(downloadBtn);
-
-    idProofPreviewArea.appendChild(name);
-    idProofPreviewArea.appendChild(actions);
-  } else {
-    idProofPreviewArea.innerHTML = `<p>${emp.idProofName || "File uploaded"}</p>`;
-  }
+  if (!idProofPreviewArea) return;
+  idProofPreviewArea.innerHTML = `<p>No ID proof uploaded</p>`;
 }
 
 // =====================================================
 // Other documents render
 // =====================================================
 function renderDocuments(emp) {
-  documentsGrid.innerHTML = "";
-
-  if (!emp.documentsData || !Array.isArray(emp.documentsData) || emp.documentsData.length === 0) {
-    documentsGrid.innerHTML = `<p class="no-docs-text">No documents uploaded</p>`;
-    return;
-  }
-
-  emp.documentsData.forEach((fileObj, index) => {
-    const card = document.createElement("div");
-    card.className = "doc-card";
-
-    if (isImage(fileObj.type, fileObj.dataUrl, fileObj.name)) {
-      const img = document.createElement("img");
-      img.src = fileObj.dataUrl;
-      img.alt = fileObj.name || "Document";
-      img.addEventListener("click", () => {
-        showPreview({
-          dataUrl: fileObj.dataUrl,
-          type: fileObj.type,
-          name: fileObj.name
-        });
-      });
-      card.appendChild(img);
-    }
-
-    const name = document.createElement("div");
-    name.className = "doc-name";
-    name.textContent = fileObj.name || `Document ${index + 1}`;
-    card.appendChild(name);
-
-    const actions = document.createElement("div");
-    actions.className = "doc-actions";
-
-    const previewBtn = document.createElement("button");
-    previewBtn.className = "small-btn";
-    previewBtn.type = "button";
-    previewBtn.textContent =
-      isImage(fileObj.type, fileObj.dataUrl, fileObj.name) ||
-      isPdf(fileObj.type, fileObj.dataUrl, fileObj.name)
-        ? "Preview"
-        : "Open";
-
-    previewBtn.addEventListener("click", () => {
-      showPreview({
-        dataUrl: fileObj.dataUrl,
-        type: fileObj.type,
-        name: fileObj.name
-      });
-    });
-
-    const downloadBtn = document.createElement("button");
-    downloadBtn.className = "small-btn";
-    downloadBtn.type = "button";
-    downloadBtn.textContent = "Download";
-    downloadBtn.addEventListener("click", () => {
-      downloadDataUrl(fileObj.dataUrl, fileObj.name || "document");
-    });
-
-    actions.appendChild(previewBtn);
-    actions.appendChild(downloadBtn);
-    card.appendChild(actions);
-
-    documentsGrid.appendChild(card);
-  });
+  if (!documentsGrid) return;
+  documentsGrid.innerHTML = `<p class="no-docs-text">No documents uploaded</p>`;
 }
 
 // =====================================================
@@ -455,27 +304,27 @@ function renderDocuments(emp) {
 function openEmployeeModal(emp) {
   currentEmployee = { ...emp };
 
-  modalPhotoPreview.src = emp.photoData || "../logo.png";
-  modalEmployeeTitle.textContent = emp.fullName || "Employee Name";
+  if (modalPhotoPreview) modalPhotoPreview.src = "../assets/logo.png";
+  if (modalEmployeeTitle) modalEmployeeTitle.textContent = emp.fullName || "Employee Name";
 
-  viewFullName.textContent = emp.fullName || "N/A";
-  viewEmail.textContent = emp.email || "N/A";
-  viewMobile.textContent = emp.mobile || "N/A";
-  viewEmergency.textContent = emp.emergencyContact || "N/A";
-  viewAddress.textContent = emp.address || "N/A";
-  viewDesignation.textContent = emp.designation || "N/A";
-  viewExperience.textContent = emp.experienceType || "N/A";
-  viewOutlet.textContent = emp.outletName || "N/A";
-  viewSalary.textContent = emp.salary ? `₹ ${emp.salary}` : "N/A";
-  viewIdType.textContent = emp.idType || "N/A";
-  viewIdNumber.textContent = emp.idNumber || "N/A";
+  if (viewFullName) viewFullName.textContent = emp.fullName || "N/A";
+  if (viewEmail) viewEmail.textContent = emp.email || "N/A";
+  if (viewMobile) viewMobile.textContent = emp.mobile || "N/A";
+  if (viewEmergency) viewEmergency.textContent = emp.emergencyContact || "N/A";
+  if (viewAddress) viewAddress.textContent = emp.address || "N/A";
+  if (viewDesignation) viewDesignation.textContent = emp.designation || "N/A";
+  if (viewExperience) viewExperience.textContent = emp.experienceType || "N/A";
+  if (viewOutlet) viewOutlet.textContent = emp.outletName || "N/A";
+  if (viewSalary) viewSalary.textContent = emp.salary ? `₹ ${emp.salary}` : "N/A";
+  if (viewIdType) viewIdType.textContent = emp.idType || "N/A";
+  if (viewIdNumber) viewIdNumber.textContent = emp.idNumber || "N/A";
 
   fillEditInputs(emp);
   renderIdProof(emp);
   renderDocuments(emp);
 
   setEditMode(false);
-  employeeModal.classList.remove("hidden");
+  if (employeeModal) employeeModal.classList.remove("hidden");
 }
 
 // =====================================================
@@ -484,9 +333,7 @@ function openEmployeeModal(emp) {
 function renderEmployees(list) {
   if (!employeeTableBody) return;
 
-  if (totalEmployees) {
-    totalEmployees.textContent = list.length;
-  }
+  if (totalEmployees) totalEmployees.textContent = list.length;
 
   if (!list.length) {
     employeeTableBody.innerHTML = `
@@ -505,7 +352,7 @@ function renderEmployees(list) {
 
     tr.innerHTML = `
       <td>
-        <img src="${emp.photoData || "../logo.png"}" alt="${emp.fullName || "Employee"}" class="employee-photo">
+        <img src="../assets/logo.png" alt="${emp.fullName || "Employee"}" class="employee-photo">
       </td>
       <td>
         <button class="employee-name-btn" type="button">${emp.fullName || "N/A"}</button>
@@ -546,10 +393,10 @@ function renderEmployees(list) {
 // Filters
 // =====================================================
 function applyFilters() {
-  const nameValue = searchName.value.trim().toLowerCase();
-  const outletValue = searchOutlet.value.trim().toLowerCase();
-  const joiningFrom = searchJoiningDateFrom.value;
-  const joiningTo = searchJoiningDateTo.value;
+  const nameValue = searchName ? searchName.value.trim().toLowerCase() : "";
+  const outletValue = searchOutlet ? searchOutlet.value.trim().toLowerCase() : "";
+  const joiningFrom = searchJoiningDateFrom ? searchJoiningDateFrom.value : "";
+  const joiningTo = searchJoiningDateTo ? searchJoiningDateTo.value : "";
 
   const filtered = employeesCache.filter(emp => {
     const fullName = (emp.fullName || "").toLowerCase();
@@ -561,13 +408,8 @@ function applyFilters() {
     let fromMatch = true;
     let toMatch = true;
 
-    if (joiningFrom) {
-      fromMatch = employeeDate && employeeDate >= joiningFrom;
-    }
-
-    if (joiningTo) {
-      toMatch = employeeDate && employeeDate <= joiningTo;
-    }
+    if (joiningFrom) fromMatch = employeeDate && employeeDate >= joiningFrom;
+    if (joiningTo) toMatch = employeeDate && employeeDate <= joiningTo;
 
     return (
       fullName.includes(nameValue) &&
@@ -619,7 +461,7 @@ async function loadEmployees() {
 // =====================================================
 if (closeModalBtn) {
   closeModalBtn.addEventListener("click", () => {
-    employeeModal.classList.add("hidden");
+    if (employeeModal) employeeModal.classList.add("hidden");
     setEditMode(false);
   });
 }
@@ -635,86 +477,8 @@ if (employeeModal) {
 
 if (closePreviewBtn) {
   closePreviewBtn.addEventListener("click", () => {
-    previewModal.classList.add("hidden");
-    previewBody.innerHTML = "";
-  });
-}
-
-if (previewModal) {
-  previewModal.addEventListener("click", (e) => {
-    if (e.target === previewModal) {
-      previewModal.classList.add("hidden");
-      previewBody.innerHTML = "";
-    }
-  });
-}
-
-// =====================================================
-// Photo buttons
-// =====================================================
-if (zoomPhotoBtn) {
-  zoomPhotoBtn.addEventListener("click", () => {
-    if (!currentEmployee?.photoData) {
-      alert("No photo uploaded");
-      return;
-    }
-
-    showPreview({
-      dataUrl: currentEmployee.photoData,
-      type: currentEmployee.photoType,
-      name: currentEmployee.photoName || "Employee Photo"
-    });
-  });
-}
-
-if (downloadPhotoBtn) {
-  downloadPhotoBtn.addEventListener("click", () => {
-    if (!currentEmployee?.photoData) {
-      alert("No photo uploaded");
-      return;
-    }
-
-    downloadDataUrl(
-      currentEmployee.photoData,
-      currentEmployee.photoName || "employee-photo"
-    );
-  });
-}
-
-if (downloadIdProofBtn) {
-  downloadIdProofBtn.addEventListener("click", () => {
-    if (!currentEmployee?.idProofData) {
-      alert("No ID proof uploaded");
-      return;
-    }
-
-    downloadDataUrl(
-      currentEmployee.idProofData,
-      currentEmployee.idProofName || "id-proof"
-    );
-  });
-}
-
-// =====================================================
-// Edit mode buttons
-// =====================================================
-if (editEmployeeBtn) {
-  editEmployeeBtn.addEventListener("click", () => {
-    if (!currentEmployee) return;
-    fillEditInputs(currentEmployee);
-    setEditMode(true);
-  });
-}
-
-if (cancelEditBtn) {
-  cancelEditBtn.addEventListener("click", () => {
-    if (!currentEmployee) return;
-
-    fillEditInputs(currentEmployee);
-    editPhotoInput.value = "";
-    editIdProofInput.value = "";
-    editDocumentsInput.value = "";
-    setEditMode(false);
+    if (previewModal) previewModal.classList.add("hidden");
+    if (previewBody) previewBody.innerHTML = "";
   });
 }
 
@@ -729,49 +493,22 @@ if (saveEmployeeBtn) {
 
     try {
       const updatedData = {
-        fullName: editFullName.value.trim(),
-        email: editEmail.value.trim(),
-        mobile: editMobile.value.trim(),
-        emergencyContact: editEmergency.value.trim(),
-        address: editAddress.value.trim(),
-        designation: editDesignation.value.trim(),
-        experienceType: editExperience.value,
-        outletName: editOutlet.value.trim(),
-        salary: Number(editSalary.value || 0),
-        idType: editIdType.value,
-        idNumber: editIdNumber.value.trim()
+        fullName: editFullName ? editFullName.value.trim() : "",
+        email: editEmail ? editEmail.value.trim() : "",
+        mobile: editMobile ? editMobile.value.trim() : "",
+        emergencyContact: editEmergency ? editEmergency.value.trim() : "",
+        address: editAddress ? editAddress.value.trim() : "",
+        designation: editDesignation ? editDesignation.value.trim() : "",
+        experienceType: editExperience ? editExperience.value : "",
+        outletName: editOutlet ? editOutlet.value.trim() : "",
+        salary: editSalary ? Number(editSalary.value || 0) : 0,
+        idType: editIdType ? editIdType.value : "",
+        idNumber: editIdNumber ? editIdNumber.value.trim() : ""
       };
-
-      if (editPhotoInput.files.length) {
-        const photoFile = editPhotoInput.files[0];
-        updatedData.photoName = photoFile.name;
-        updatedData.photoType = photoFile.type || "";
-        updatedData.photoData = await fileToDataURL(photoFile);
-      }
-
-      if (editIdProofInput.files.length) {
-        const idProofFile = editIdProofInput.files[0];
-        updatedData.idProofName = idProofFile.name;
-        updatedData.idProofType = idProofFile.type || "";
-        updatedData.idProofData = await fileToDataURL(idProofFile);
-      }
-
-      if (editDocumentsInput.files.length) {
-        updatedData.documentNames = Array.from(editDocumentsInput.files).map(file => file.name);
-        updatedData.documentsData = await filesToDataArray(Array.from(editDocumentsInput.files));
-      }
 
       await updateDoc(doc(db, "employees", currentEmployee.docId), updatedData);
 
-      currentEmployee = {
-        ...currentEmployee,
-        ...updatedData
-      };
-
-      editPhotoInput.value = "";
-      editIdProofInput.value = "";
-      editDocumentsInput.value = "";
-
+      currentEmployee = { ...currentEmployee, ...updatedData };
       openEmployeeModal(currentEmployee);
       await loadEmployees();
 
@@ -794,28 +531,13 @@ if (searchBtn) {
 
 if (resetBtn) {
   resetBtn.addEventListener("click", () => {
-    searchName.value = "";
-    searchOutlet.value = "";
-    searchJoiningDateFrom.value = "";
-    searchJoiningDateTo.value = "";
+    if (searchName) searchName.value = "";
+    if (searchOutlet) searchOutlet.value = "";
+    if (searchJoiningDateFrom) searchJoiningDateFrom.value = "";
+    if (searchJoiningDateTo) searchJoiningDateTo.value = "";
     renderEmployees(employeesCache);
   });
 }
-
-// Optional: Enter key on filters
-[searchName, searchOutlet].forEach(input => {
-  if (!input) return;
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      applyFilters();
-    }
-  });
-});
-
-[searchJoiningDateFrom, searchJoiningDateTo].forEach(input => {
-  if (!input) return;
-  input.addEventListener("change", applyFilters);
-});
 
 // =====================================================
 // Init
