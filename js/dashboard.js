@@ -4,25 +4,39 @@ import {
   collection,
   getDocs,
   doc,
-  updateDoc
+  updateDoc,
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
+// ---------- Top buttons / table ----------
 const logoutBtn = document.getElementById("logoutBtn");
 const employeeTableBody = document.getElementById("employeeTableBody");
 const totalEmployees = document.getElementById("totalEmployees");
 
+// ---------- Main modal ----------
 const employeeModal = document.getElementById("employeeModal");
 const closeModalBtn = document.getElementById("closeModalBtn");
+const modalEmployeeTitle = document.getElementById("modalEmployeeTitle");
 
+// ---------- Preview modal ----------
 const previewModal = document.getElementById("previewModal");
 const closePreviewBtn = document.getElementById("closePreviewBtn");
 const previewBody = document.getElementById("previewBody");
 
+// ---------- Main action buttons ----------
 const editEmployeeBtn = document.getElementById("editEmployeeBtn");
 const saveEmployeeBtn = document.getElementById("saveEmployeeBtn");
 const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-// profile view elements
+// ---------- Filters ----------
+const searchName = document.getElementById("searchName");
+const searchOutlet = document.getElementById("searchOutlet");
+const searchJoiningDateFrom = document.getElementById("searchJoiningDateFrom");
+const searchJoiningDateTo = document.getElementById("searchJoiningDateTo");
+const searchBtn = document.getElementById("searchBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+// ---------- Profile view elements ----------
 const modalPhotoPreview = document.getElementById("modalPhotoPreview");
 const zoomPhotoBtn = document.getElementById("zoomPhotoBtn");
 const downloadPhotoBtn = document.getElementById("downloadPhotoBtn");
@@ -39,7 +53,7 @@ const viewSalary = document.getElementById("viewSalary");
 const viewIdType = document.getElementById("viewIdType");
 const viewIdNumber = document.getElementById("viewIdNumber");
 
-// edit inputs
+// ---------- Edit inputs ----------
 const editFullName = document.getElementById("editFullName");
 const editEmail = document.getElementById("editEmail");
 const editMobile = document.getElementById("editMobile");
@@ -52,6 +66,7 @@ const editSalary = document.getElementById("editSalary");
 const editIdType = document.getElementById("editIdType");
 const editIdNumber = document.getElementById("editIdNumber");
 
+// ---------- Upload edit sections ----------
 const editPhotoWrap = document.getElementById("editPhotoWrap");
 const editIdProofWrap = document.getElementById("editIdProofWrap");
 const editDocumentsWrap = document.getElementById("editDocumentsWrap");
@@ -60,15 +75,19 @@ const editPhotoInput = document.getElementById("editPhotoInput");
 const editIdProofInput = document.getElementById("editIdProofInput");
 const editDocumentsInput = document.getElementById("editDocumentsInput");
 
+// ---------- Document sections ----------
 const idProofPreviewArea = document.getElementById("idProofPreviewArea");
 const downloadIdProofBtn = document.getElementById("downloadIdProofBtn");
 const documentsGrid = document.getElementById("documentsGrid");
 
+// ---------- State ----------
 let employeesCache = [];
 let currentEmployee = null;
 let editMode = false;
 
-// ---------- Logout ----------
+// =====================================================
+// Logout
+// =====================================================
 if (logoutBtn) {
   logoutBtn.addEventListener("click", async () => {
     try {
@@ -80,7 +99,9 @@ if (logoutBtn) {
   });
 }
 
-// ---------- Helpers ----------
+// =====================================================
+// Helpers
+// =====================================================
 function isImage(type = "", dataUrl = "", fileName = "") {
   return (
     type.startsWith("image/") ||
@@ -165,11 +186,68 @@ function showPreview({ dataUrl = "", type = "", name = "" }) {
   } else {
     const p = document.createElement("p");
     p.style.color = "#ddd";
+    p.style.textAlign = "center";
     p.textContent = "Preview not available for this file type. Please use download.";
     previewBody.appendChild(p);
   }
 
   previewModal.classList.remove("hidden");
+}
+
+function formatJoiningDate(dateValue) {
+  if (!dateValue) return "N/A";
+
+  try {
+    if (typeof dateValue === "string") {
+      const date = new Date(dateValue);
+      if (!isNaN(date)) return date.toLocaleDateString("en-GB");
+      return dateValue;
+    }
+
+    if (dateValue.seconds) {
+      const date = new Date(dateValue.seconds * 1000);
+      return date.toLocaleDateString("en-GB");
+    }
+
+    return "N/A";
+  } catch {
+    return "N/A";
+  }
+}
+
+function getJoiningDateValue(emp) {
+  return emp.joiningDate || emp.dateOfJoining || emp.joinDate || "";
+}
+
+function normalizeDateForCompare(value) {
+  if (!value) return "";
+
+  try {
+    if (typeof value === "string") {
+      const date = new Date(value);
+      if (!isNaN(date)) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+      return "";
+    }
+
+    if (value.seconds) {
+      const date = new Date(value.seconds * 1000);
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    return "";
+  } catch {
+    return "";
+  }
 }
 
 function setEditMode(enabled) {
@@ -209,6 +287,9 @@ function fillEditInputs(emp) {
   editIdNumber.value = emp.idNumber || "";
 }
 
+// =====================================================
+// ID Proof render
+// =====================================================
 function renderIdProof(emp) {
   idProofPreviewArea.innerHTML = "";
 
@@ -238,6 +319,7 @@ function renderIdProof(emp) {
     const zoomBtn = document.createElement("button");
     zoomBtn.className = "small-btn";
     zoomBtn.textContent = "Zoom";
+    zoomBtn.type = "button";
     zoomBtn.addEventListener("click", () => {
       showPreview({
         dataUrl: emp.idProofData,
@@ -249,6 +331,7 @@ function renderIdProof(emp) {
     const downloadBtn = document.createElement("button");
     downloadBtn.className = "small-btn";
     downloadBtn.textContent = "Download";
+    downloadBtn.type = "button";
     downloadBtn.addEventListener("click", () => {
       downloadDataUrl(emp.idProofData, emp.idProofName || "id-proof");
     });
@@ -269,6 +352,7 @@ function renderIdProof(emp) {
     const previewBtn = document.createElement("button");
     previewBtn.className = "small-btn";
     previewBtn.textContent = "Preview";
+    previewBtn.type = "button";
     previewBtn.addEventListener("click", () => {
       showPreview({
         dataUrl: emp.idProofData,
@@ -280,6 +364,7 @@ function renderIdProof(emp) {
     const downloadBtn = document.createElement("button");
     downloadBtn.className = "small-btn";
     downloadBtn.textContent = "Download";
+    downloadBtn.type = "button";
     downloadBtn.addEventListener("click", () => {
       downloadDataUrl(emp.idProofData, emp.idProofName || "id-proof.pdf");
     });
@@ -294,6 +379,9 @@ function renderIdProof(emp) {
   }
 }
 
+// =====================================================
+// Other documents render
+// =====================================================
 function renderDocuments(emp) {
   documentsGrid.innerHTML = "";
 
@@ -330,9 +418,12 @@ function renderDocuments(emp) {
 
     const previewBtn = document.createElement("button");
     previewBtn.className = "small-btn";
-    previewBtn.textContent = isImage(fileObj.type, fileObj.dataUrl, fileObj.name) || isPdf(fileObj.type, fileObj.dataUrl, fileObj.name)
-      ? "Preview"
-      : "Open";
+    previewBtn.type = "button";
+    previewBtn.textContent =
+      isImage(fileObj.type, fileObj.dataUrl, fileObj.name) ||
+      isPdf(fileObj.type, fileObj.dataUrl, fileObj.name)
+        ? "Preview"
+        : "Open";
 
     previewBtn.addEventListener("click", () => {
       showPreview({
@@ -344,6 +435,7 @@ function renderDocuments(emp) {
 
     const downloadBtn = document.createElement("button");
     downloadBtn.className = "small-btn";
+    downloadBtn.type = "button";
     downloadBtn.textContent = "Download";
     downloadBtn.addEventListener("click", () => {
       downloadDataUrl(fileObj.dataUrl, fileObj.name || "document");
@@ -357,13 +449,15 @@ function renderDocuments(emp) {
   });
 }
 
+// =====================================================
+// Open employee modal
+// =====================================================
 function openEmployeeModal(emp) {
   currentEmployee = { ...emp };
 
-  // photo
   modalPhotoPreview.src = emp.photoData || "../logo.png";
+  modalEmployeeTitle.textContent = emp.fullName || "Employee Name";
 
-  // view text
   viewFullName.textContent = emp.fullName || "N/A";
   viewEmail.textContent = emp.email || "N/A";
   viewMobile.textContent = emp.mobile || "N/A";
@@ -384,13 +478,117 @@ function openEmployeeModal(emp) {
   employeeModal.classList.remove("hidden");
 }
 
-// ---------- Table load ----------
+// =====================================================
+// Render employee table
+// =====================================================
+function renderEmployees(list) {
+  if (!employeeTableBody) return;
+
+  if (totalEmployees) {
+    totalEmployees.textContent = list.length;
+  }
+
+  if (!list.length) {
+    employeeTableBody.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty-row">No employees found.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  employeeTableBody.innerHTML = "";
+
+  list.forEach(emp => {
+    const tr = document.createElement("tr");
+    const joiningDate = formatJoiningDate(getJoiningDateValue(emp));
+
+    tr.innerHTML = `
+      <td>
+        <img src="${emp.photoData || "../logo.png"}" alt="${emp.fullName || "Employee"}" class="employee-photo">
+      </td>
+      <td>
+        <button class="employee-name-btn" type="button">${emp.fullName || "N/A"}</button>
+      </td>
+      <td>${emp.mobile || "N/A"}</td>
+      <td>${emp.email || "N/A"}</td>
+      <td>${emp.designation || "N/A"}</td>
+      <td>${emp.outletName || "N/A"}</td>
+      <td>${joiningDate}</td>
+      <td>
+        <button class="delete-btn" type="button">Delete</button>
+      </td>
+    `;
+
+    tr.querySelector(".employee-name-btn").addEventListener("click", () => {
+      openEmployeeModal(emp);
+    });
+
+    tr.querySelector(".delete-btn").addEventListener("click", async () => {
+      const confirmDelete = confirm(`Delete ${emp.fullName || "this employee"}?`);
+      if (!confirmDelete) return;
+
+      try {
+        await deleteDoc(doc(db, "employees", emp.docId));
+        alert("Employee deleted successfully");
+        await loadEmployees();
+      } catch (error) {
+        console.error("Delete error:", error);
+        alert("Failed to delete employee: " + error.message);
+      }
+    });
+
+    employeeTableBody.appendChild(tr);
+  });
+}
+
+// =====================================================
+// Filters
+// =====================================================
+function applyFilters() {
+  const nameValue = searchName.value.trim().toLowerCase();
+  const outletValue = searchOutlet.value.trim().toLowerCase();
+  const joiningFrom = searchJoiningDateFrom.value;
+  const joiningTo = searchJoiningDateTo.value;
+
+  const filtered = employeesCache.filter(emp => {
+    const fullName = (emp.fullName || "").toLowerCase();
+    const outletName = (emp.outletName || "").toLowerCase();
+
+    const joiningRaw = getJoiningDateValue(emp);
+    const employeeDate = normalizeDateForCompare(joiningRaw);
+
+    let fromMatch = true;
+    let toMatch = true;
+
+    if (joiningFrom) {
+      fromMatch = employeeDate && employeeDate >= joiningFrom;
+    }
+
+    if (joiningTo) {
+      toMatch = employeeDate && employeeDate <= joiningTo;
+    }
+
+    return (
+      fullName.includes(nameValue) &&
+      outletName.includes(outletValue) &&
+      fromMatch &&
+      toMatch
+    );
+  });
+
+  renderEmployees(filtered);
+}
+
+// =====================================================
+// Load employees
+// =====================================================
 async function loadEmployees() {
   if (!employeeTableBody) return;
 
   employeeTableBody.innerHTML = `
     <tr>
-      <td colspan="6" class="empty-row">Loading employees...</td>
+      <td colspan="8" class="empty-row">Loading employees...</td>
     </tr>
   `;
 
@@ -405,188 +603,221 @@ async function loadEmployees() {
       });
     });
 
-    if (totalEmployees) totalEmployees.textContent = employeesCache.length;
-
-    if (employeesCache.length === 0) {
-      employeeTableBody.innerHTML = `
-        <tr>
-          <td colspan="6" class="empty-row">No employees found.</td>
-        </tr>
-      `;
-      return;
-    }
-
-    employeeTableBody.innerHTML = "";
-
-    employeesCache.forEach(emp => {
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>
-          <img src="${emp.photoData || "../logo.png"}" alt="${emp.fullName || "Employee"}" class="employee-photo">
-        </td>
-        <td>
-          <button class="employee-name-btn">${emp.fullName || "N/A"}</button>
-        </td>
-        <td>${emp.mobile || "N/A"}</td>
-        <td>${emp.email || "N/A"}</td>
-        <td>${emp.designation || "N/A"}</td>
-        <td>${emp.outletName || "N/A"}</td>
-      `;
-
-      tr.querySelector(".employee-name-btn").addEventListener("click", () => {
-        openEmployeeModal(emp);
-      });
-
-      employeeTableBody.appendChild(tr);
-    });
+    renderEmployees(employeesCache);
   } catch (error) {
     console.error("Error loading employees:", error);
     employeeTableBody.innerHTML = `
       <tr>
-        <td colspan="6" class="empty-row">Failed to load employees.</td>
+        <td colspan="8" class="empty-row">Failed to load employees.</td>
       </tr>
     `;
   }
 }
 
-// ---------- Close modals ----------
-closeModalBtn.addEventListener("click", () => {
-  employeeModal.classList.add("hidden");
-  setEditMode(false);
-});
-
-employeeModal.addEventListener("click", (e) => {
-  if (e.target === employeeModal) {
+// =====================================================
+// Close modals
+// =====================================================
+if (closeModalBtn) {
+  closeModalBtn.addEventListener("click", () => {
     employeeModal.classList.add("hidden");
     setEditMode(false);
-  }
-});
+  });
+}
 
-closePreviewBtn.addEventListener("click", () => {
-  previewModal.classList.add("hidden");
-  previewBody.innerHTML = "";
-});
+if (employeeModal) {
+  employeeModal.addEventListener("click", (e) => {
+    if (e.target === employeeModal) {
+      employeeModal.classList.add("hidden");
+      setEditMode(false);
+    }
+  });
+}
 
-previewModal.addEventListener("click", (e) => {
-  if (e.target === previewModal) {
+if (closePreviewBtn) {
+  closePreviewBtn.addEventListener("click", () => {
     previewModal.classList.add("hidden");
     previewBody.innerHTML = "";
-  }
-});
-
-// ---------- Photo buttons ----------
-zoomPhotoBtn.addEventListener("click", () => {
-  if (!currentEmployee?.photoData) {
-    alert("No photo uploaded");
-    return;
-  }
-
-  showPreview({
-    dataUrl: currentEmployee.photoData,
-    type: currentEmployee.photoType,
-    name: currentEmployee.photoName || "Employee Photo"
   });
-});
+}
 
-downloadPhotoBtn.addEventListener("click", () => {
-  if (!currentEmployee?.photoData) {
-    alert("No photo uploaded");
-    return;
-  }
-  downloadDataUrl(currentEmployee.photoData, currentEmployee.photoName || "employee-photo");
-});
+if (previewModal) {
+  previewModal.addEventListener("click", (e) => {
+    if (e.target === previewModal) {
+      previewModal.classList.add("hidden");
+      previewBody.innerHTML = "";
+    }
+  });
+}
 
-downloadIdProofBtn.addEventListener("click", () => {
-  if (!currentEmployee?.idProofData) {
-    alert("No ID proof uploaded");
-    return;
-  }
-  downloadDataUrl(currentEmployee.idProofData, currentEmployee.idProofName || "id-proof");
-});
-
-// ---------- Edit mode ----------
-editEmployeeBtn.addEventListener("click", () => {
-  if (!currentEmployee) return;
-  fillEditInputs(currentEmployee);
-  setEditMode(true);
-});
-
-cancelEditBtn.addEventListener("click", () => {
-  if (!currentEmployee) return;
-  fillEditInputs(currentEmployee);
-  setEditMode(false);
-});
-
-// ---------- Save employee changes ----------
-saveEmployeeBtn.addEventListener("click", async () => {
-  if (!currentEmployee?.docId) return;
-
-  saveEmployeeBtn.textContent = "Saving...";
-
-  try {
-    const updatedData = {
-      fullName: editFullName.value.trim(),
-      email: editEmail.value.trim(),
-      mobile: editMobile.value.trim(),
-      emergencyContact: editEmergency.value.trim(),
-      address: editAddress.value.trim(),
-      designation: editDesignation.value.trim(),
-      experienceType: editExperience.value,
-      outletName: editOutlet.value.trim(),
-      salary: Number(editSalary.value || 0),
-      idType: editIdType.value,
-      idNumber: editIdNumber.value.trim()
-    };
-
-    // replace photo if selected
-    if (editPhotoInput.files.length) {
-      const photoFile = editPhotoInput.files[0];
-      updatedData.photoName = photoFile.name;
-      updatedData.photoType = photoFile.type || "";
-      updatedData.photoData = await fileToDataURL(photoFile);
+// =====================================================
+// Photo buttons
+// =====================================================
+if (zoomPhotoBtn) {
+  zoomPhotoBtn.addEventListener("click", () => {
+    if (!currentEmployee?.photoData) {
+      alert("No photo uploaded");
+      return;
     }
 
-    // replace ID proof if selected
-    if (editIdProofInput.files.length) {
-      const idProofFile = editIdProofInput.files[0];
-      updatedData.idProofName = idProofFile.name;
-      updatedData.idProofType = idProofFile.type || "";
-      updatedData.idProofData = await fileToDataURL(idProofFile);
+    showPreview({
+      dataUrl: currentEmployee.photoData,
+      type: currentEmployee.photoType,
+      name: currentEmployee.photoName || "Employee Photo"
+    });
+  });
+}
+
+if (downloadPhotoBtn) {
+  downloadPhotoBtn.addEventListener("click", () => {
+    if (!currentEmployee?.photoData) {
+      alert("No photo uploaded");
+      return;
     }
 
-    // replace documents if selected
-    if (editDocumentsInput.files.length) {
-      updatedData.documentNames = Array.from(editDocumentsInput.files).map(file => file.name);
-      updatedData.documentsData = await filesToDataArray(Array.from(editDocumentsInput.files));
+    downloadDataUrl(
+      currentEmployee.photoData,
+      currentEmployee.photoName || "employee-photo"
+    );
+  });
+}
+
+if (downloadIdProofBtn) {
+  downloadIdProofBtn.addEventListener("click", () => {
+    if (!currentEmployee?.idProofData) {
+      alert("No ID proof uploaded");
+      return;
     }
 
-    await updateDoc(doc(db, "employees", currentEmployee.docId), updatedData);
+    downloadDataUrl(
+      currentEmployee.idProofData,
+      currentEmployee.idProofName || "id-proof"
+    );
+  });
+}
 
-    // update local currentEmployee
-    currentEmployee = {
-      ...currentEmployee,
-      ...updatedData
-    };
+// =====================================================
+// Edit mode buttons
+// =====================================================
+if (editEmployeeBtn) {
+  editEmployeeBtn.addEventListener("click", () => {
+    if (!currentEmployee) return;
+    fillEditInputs(currentEmployee);
+    setEditMode(true);
+  });
+}
 
-    // clear file inputs after save
+if (cancelEditBtn) {
+  cancelEditBtn.addEventListener("click", () => {
+    if (!currentEmployee) return;
+
+    fillEditInputs(currentEmployee);
     editPhotoInput.value = "";
     editIdProofInput.value = "";
     editDocumentsInput.value = "";
+    setEditMode(false);
+  });
+}
 
-    // refresh modal UI
-    openEmployeeModal(currentEmployee);
+// =====================================================
+// Save employee changes
+// =====================================================
+if (saveEmployeeBtn) {
+  saveEmployeeBtn.addEventListener("click", async () => {
+    if (!currentEmployee?.docId) return;
 
-    // refresh cache and table row list
-    await loadEmployees();
+    saveEmployeeBtn.textContent = "Saving...";
 
-    alert("Employee updated successfully!");
-  } catch (error) {
-    console.error("Error updating employee:", error);
-    alert("Failed to update employee: " + error.message);
-  } finally {
-    saveEmployeeBtn.textContent = "Save Changes";
-  }
+    try {
+      const updatedData = {
+        fullName: editFullName.value.trim(),
+        email: editEmail.value.trim(),
+        mobile: editMobile.value.trim(),
+        emergencyContact: editEmergency.value.trim(),
+        address: editAddress.value.trim(),
+        designation: editDesignation.value.trim(),
+        experienceType: editExperience.value,
+        outletName: editOutlet.value.trim(),
+        salary: Number(editSalary.value || 0),
+        idType: editIdType.value,
+        idNumber: editIdNumber.value.trim()
+      };
+
+      if (editPhotoInput.files.length) {
+        const photoFile = editPhotoInput.files[0];
+        updatedData.photoName = photoFile.name;
+        updatedData.photoType = photoFile.type || "";
+        updatedData.photoData = await fileToDataURL(photoFile);
+      }
+
+      if (editIdProofInput.files.length) {
+        const idProofFile = editIdProofInput.files[0];
+        updatedData.idProofName = idProofFile.name;
+        updatedData.idProofType = idProofFile.type || "";
+        updatedData.idProofData = await fileToDataURL(idProofFile);
+      }
+
+      if (editDocumentsInput.files.length) {
+        updatedData.documentNames = Array.from(editDocumentsInput.files).map(file => file.name);
+        updatedData.documentsData = await filesToDataArray(Array.from(editDocumentsInput.files));
+      }
+
+      await updateDoc(doc(db, "employees", currentEmployee.docId), updatedData);
+
+      currentEmployee = {
+        ...currentEmployee,
+        ...updatedData
+      };
+
+      editPhotoInput.value = "";
+      editIdProofInput.value = "";
+      editDocumentsInput.value = "";
+
+      openEmployeeModal(currentEmployee);
+      await loadEmployees();
+
+      alert("Employee updated successfully!");
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      alert("Failed to update employee: " + error.message);
+    } finally {
+      saveEmployeeBtn.textContent = "Save Changes";
+    }
+  });
+}
+
+// =====================================================
+// Search / Reset
+// =====================================================
+if (searchBtn) {
+  searchBtn.addEventListener("click", applyFilters);
+}
+
+if (resetBtn) {
+  resetBtn.addEventListener("click", () => {
+    searchName.value = "";
+    searchOutlet.value = "";
+    searchJoiningDateFrom.value = "";
+    searchJoiningDateTo.value = "";
+    renderEmployees(employeesCache);
+  });
+}
+
+// Optional: Enter key on filters
+[searchName, searchOutlet].forEach(input => {
+  if (!input) return;
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      applyFilters();
+    }
+  });
 });
 
+[searchJoiningDateFrom, searchJoiningDateTo].forEach(input => {
+  if (!input) return;
+  input.addEventListener("change", applyFilters);
+});
+
+// =====================================================
+// Init
+// =====================================================
 loadEmployees();

@@ -7,7 +7,7 @@ import {
 
 import {
   ref,
-  uploadBytes,
+  uploadBytesResumable,
   getDownloadURL
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-storage.js";
 
@@ -22,62 +22,88 @@ const photoFileName = document.getElementById("photoFileName");
 const idProofFileName = document.getElementById("idProofFileName");
 const documentsFileName = document.getElementById("documentsFileName");
 
-// -------------------- FILE NAME SHOW --------------------
-photoInput.addEventListener("change", () => {
-  photoFileName.textContent = photoInput.files.length
-    ? photoInput.files[0].name
-    : "No photo selected";
-});
-
-idProofInput.addEventListener("change", () => {
-  idProofFileName.textContent = idProofInput.files.length
-    ? idProofInput.files[0].name
-    : "No ID proof selected";
-});
-
-documentsInput.addEventListener("change", () => {
-  if (!documentsInput.files.length) {
-    documentsFileName.textContent = "No documents selected";
-    return;
-  }
-
-  const names = Array.from(documentsInput.files).map(file => file.name);
-  documentsFileName.textContent = names.join(", ");
-});
-
-// -------------------- HELPER: FILE UPLOAD --------------------
-async function uploadSingleFile(file, folderPath) {
-  if (!file) return null;
-
-  const fileName = `${Date.now()}-${file.name}`;
-  const storageRef = ref(storage, `${folderPath}/${fileName}`);
-
-  await uploadBytes(storageRef, file);
-  const downloadURL = await getDownloadURL(storageRef);
-
-  return {
-    name: file.name,
-    url: downloadURL,
-    storagePath: storageRef.fullPath
-  };
+// ---------- FILE NAME SHOW ----------
+if (photoInput) {
+  photoInput.addEventListener("change", () => {
+    photoFileName.textContent = photoInput.files.length
+      ? photoInput.files[0].name
+      : "No photo selected";
+  });
 }
 
-async function uploadMultipleFiles(files, folderPath) {
+if (idProofInput) {
+  idProofInput.addEventListener("change", () => {
+    idProofFileName.textContent = idProofInput.files.length
+      ? idProofInput.files[0].name
+      : "No ID proof selected";
+  });
+}
+
+if (documentsInput) {
+  documentsInput.addEventListener("change", () => {
+    if (!documentsInput.files.length) {
+      documentsFileName.textContent = "No documents selected";
+      return;
+    }
+    documentsFileName.textContent = Array.from(documentsInput.files)
+      .map(file => file.name)
+      .join(", ");
+  });
+}
+
+// ---------- UPLOAD SINGLE FILE ----------
+function uploadSingleFile(file, folderName) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve({ name: "", url: "" });
+      return;
+    }
+
+    const uniqueName = `${Date.now()}_${file.name}`;
+    const fileRef = ref(storage, `${folderName}/${uniqueName}`);
+    const uploadTask = uploadBytesResumable(fileRef, file);
+
+    uploadTask.on(
+      "state_changed",
+      (snapshot) => {
+        const progress = Math.round(
+          (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+        );
+        console.log(`Uploading ${file.name}: ${progress}%`);
+        message.textContent = `Uploading ${file.name}... ${progress}%`;
+      },
+      (error) => {
+        console.error("Upload error:", error);
+        reject(error);
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve({
+            name: file.name,
+            url: downloadURL
+          });
+        } catch (err) {
+          reject(err);
+        }
+      }
+    );
+  });
+}
+
+// ---------- UPLOAD MULTIPLE FILES ----------
+async function uploadMultipleFiles(files, folderName) {
   if (!files || !files.length) return [];
 
-  const uploadedFiles = [];
-
+  const uploaded = [];
   for (const file of files) {
-    const uploaded = await uploadSingleFile(file, folderPath);
-    if (uploaded) {
-      uploadedFiles.push(uploaded);
-    }
+    const data = await uploadSingleFile(file, folderName);
+    uploaded.push(data);
   }
-
-  return uploadedFiles;
+  return uploaded;
 }
 
-// -------------------- REGISTER EMPLOYEE --------------------
+// ---------- REGISTER ----------
 registerForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -96,61 +122,51 @@ registerForm.addEventListener("submit", async (e) => {
   const idNumber = document.getElementById("idNumber").value.trim();
 
   message.style.color = "#ffffff";
-  message.textContent = "Uploading files and saving employee...";
+  message.textContent = "Starting upload...";
 
   try {
-    const safeName = fullName.replace(/\s+/g, "_").toLowerCase();
-    const baseFolder = `employees/${safeName}_${Date.now()}`;
+    const employeeFolder = `employees/${fullName.replace(/\s+/g, "_")}_${Date.now()}`;
 
-    // Upload photo
-    const photoData = photoInput.files.length
-      ? await uploadSingleFile(photoInput.files[0], `${baseFolder}/photo`)
-      : null;
+    // Photo
+    const photoData = await uploadSingleFile(
+      photoInput && photoInput.files.length ? photoInput.files[0] : null,
+      `${employeeFolder}/photo`
+    );
 
-    // Upload ID proof
-    const idProofData = idProofInput.files.length
-      ? await uploadSingleFile(idProofInput.files[0], `${baseFolder}/id-proof`)
-      : null;
+    // ID Proof
+    const idProofData = await uploadSingleFile(
+      idProofInput && idProofInput.files.length ? idProofInput.files[0] : null,
+      `${employeeFolder}/id-proof`
+    );
 
-    // Upload other documents
-    const documentsData = documentsInput.files.length
-      ? await uploadMultipleFiles(Array.from(documentsInput.files), `${baseFolder}/documents`)
-      : [];
+    // Documents
+    const documentsData = await uploadMultipleFiles(
+      documentsInput && documentsInput.files.length ? Array.from(documentsInput.files) : [],
+      `${employeeFolder}/documents`
+    );
 
-    // Save employee data to Firestore
+    message.textContent = "Saving employee data...";
+
     const employeeData = {
       fullName,
       email,
       mobile,
       emergencyContact,
       address,
-
       designation,
       experienceType,
       outletName,
       salary: Number(salary) || 0,
-
       idType,
       idNumber,
 
-      photo: photoData
-        ? {
-            name: photoData.name,
-            url: photoData.url,
-            storagePath: photoData.storagePath
-          }
-        : null,
+      photoName: photoData.name || "",
+      photoURL: photoData.url || "",
 
-      idProof: idProofData
-        ? {
-            name: idProofData.name,
-            url: idProofData.url,
-            storagePath: idProofData.storagePath
-          }
-        : null,
+      idProofName: idProofData.name || "",
+      idProofURL: idProofData.url || "",
 
-      documents: documentsData, // [{name, url, storagePath}, ...]
-
+      documents: documentsData,
       createdAt: serverTimestamp()
     };
 
@@ -160,13 +176,13 @@ registerForm.addEventListener("submit", async (e) => {
     message.textContent = "Employee registered successfully!";
 
     registerForm.reset();
-    photoFileName.textContent = "No photo selected";
-    idProofFileName.textContent = "No ID proof selected";
-    documentsFileName.textContent = "No documents selected";
+    if (photoFileName) photoFileName.textContent = "No photo selected";
+    if (idProofFileName) idProofFileName.textContent = "No ID proof selected";
+    if (documentsFileName) documentsFileName.textContent = "No documents selected";
 
   } catch (error) {
     console.error("Error saving employee:", error);
     message.style.color = "#ff4d4d";
-    message.textContent = "Failed to register employee: " + error.message;
+    message.textContent = "Failed: " + error.message;
   }
 });

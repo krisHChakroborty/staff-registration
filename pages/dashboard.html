@@ -3,247 +3,251 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard | FirstWave Fries EMS</title>
+  <title>FirstWave Fries HRMS Dashboard</title>
 
   <link rel="stylesheet" href="../css/dashboard.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-  <div class="dashboard-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="brand-box">
-        <img src="../logo.png" alt="FirstWave Fries Logo" class="brand-logo" />
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="logo-area">
+      <img src="../logo.png" alt="FirstWave Fries Logo" class="brand-logo" />
+      <div>
+        <h1>FirstWave Fries</h1>
+        <p>Employee Management Dashboard</p>
+      </div>
+    </div>
+
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </header>
+
+  <!-- Main -->
+  <main class="dashboard-main">
+
+    <!-- Top Stats -->
+    <section class="stats-section">
+      <div class="stat-card">
+        <h3>Total Employees</h3>
+        <p id="totalEmployees">0</p>
+      </div>
+    </section>
+
+    <!-- Employee List Card -->
+    <section class="employee-card">
+      <div class="card-top">
         <div>
-          <h2>FirstWave Fries</h2>
-          <p>Admin Panel</p>
+          <h2>Employee Directory</h2>
+          <p>Search, view, edit and manage employee records.</p>
         </div>
       </div>
 
-      <nav class="sidebar-menu">
-        <a href="#" class="menu-item active">📊 Dashboard</a>
-        <a href="#" class="menu-item">🧑‍🍳 Employees</a>
-        <a href="#" class="menu-item">🕒 Attendance</a>
-        <a href="#" class="menu-item">📝 Leave</a>
-        <a href="#" class="menu-item">💰 Salary</a>
-        <a href="#" class="menu-item">📁 Documents</a>
-        <a href="#" class="menu-item">📈 Reports</a>
-      </nav>
-
-      <button id="logoutBtn" class="logout-btn">Logout</button>
-    </aside>
-
-    <!-- Main -->
-    <main class="main-content">
-      <section class="dashboard-header">
-        <h1>Employee Dashboard</h1>
-        <p>Manage staff records and click employee name to view full profile.</p>
-      </section>
-
-      <section class="stats-grid">
-        <div class="stat-card">
-          <h3>Total Employees</h3>
-          <p id="totalEmployees">0</p>
+      <!-- Filters -->
+      <div class="filters-bar">
+        <div class="filter-group">
+          <label for="searchName">Employee Name</label>
+          <input type="text" id="searchName" placeholder="Search by employee name" />
         </div>
 
-        <div class="stat-card">
-          <h3>Today Present</h3>
-          <p>0</p>
+        <div class="filter-group">
+          <label for="searchOutlet">Outlet Name</label>
+          <input type="text" id="searchOutlet" placeholder="Search by outlet" />
         </div>
 
-        <div class="stat-card">
-          <h3>On Leave</h3>
-          <p>0</p>
+        <div class="filter-group">
+          <label for="searchJoiningDateFrom">Joining Date From</label>
+          <input type="date" id="searchJoiningDateFrom" />
         </div>
 
-        <div class="stat-card">
-          <h3>Pending Documents</h3>
-          <p>0</p>
-        </div>
-      </section>
-
-      <section class="employee-section">
-        <div class="section-head">
-          <h2>Employee List</h2>
-          <p>Click employee name to open full profile, view documents and edit details.</p>
+        <div class="filter-group">
+          <label for="searchJoiningDateTo">Joining Date To</label>
+          <input type="date" id="searchJoiningDateTo" />
         </div>
 
-        <div class="table-wrapper">
-          <table class="employee-table">
-            <thead>
-              <tr>
-                <th>Photo</th>
-                <th>Name</th>
-                <th>Mobile</th>
-                <th>Email</th>
-                <th>Designation</th>
-                <th>Outlet</th>
-              </tr>
-            </thead>
-            <tbody id="employeeTableBody">
-              <tr>
-                <td colspan="6" class="empty-row">Loading employees...</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- EMPLOYEE DETAILS MODAL -->
-  <div id="employeeModal" class="employee-modal hidden">
-    <div class="employee-modal-card large-modal">
-      <button id="closeModalBtn" class="close-modal-btn">&times;</button>
-
-      <div class="modal-top-actions">
-        <h2>Employee Profile</h2>
-        <div class="modal-action-buttons">
-          <button id="editEmployeeBtn" class="action-btn yellow-btn">Edit</button>
-          <button id="saveEmployeeBtn" class="action-btn green-btn hidden">Save Changes</button>
-          <button id="cancelEditBtn" class="action-btn gray-btn hidden">Cancel</button>
+        <div class="filter-buttons">
+          <button id="searchBtn" class="action-btn">Search</button>
+          <button id="resetBtn" class="action-btn secondary-btn">Reset</button>
         </div>
       </div>
 
-      <div class="profile-top">
-        <div class="profile-photo-box">
-          <img id="modalPhotoPreview" src="../logo.png" alt="Employee Photo" class="profile-photo">
-          <div class="profile-photo-actions">
-            <button id="zoomPhotoBtn" class="small-btn">Zoom</button>
-            <button id="downloadPhotoBtn" class="small-btn">Download</button>
+      <!-- Employee Table -->
+      <div class="table-wrapper">
+        <table class="employee-table">
+          <thead>
+            <tr>
+              <th>Photo</th>
+              <th>Employee Name</th>
+              <th>Mobile</th>
+              <th>Email</th>
+              <th>Designation</th>
+              <th>Outlet</th>
+              <th>Joining Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="employeeTableBody">
+            <tr>
+              <td colspan="8" class="empty-row">Loading employees...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Employee Profile Modal -->
+  <div id="employeeModal" class="modal hidden">
+    <div class="modal-content employee-modal-content">
+      <button id="closeModalBtn" class="close-btn">&times;</button>
+
+      <div class="employee-modal-header">
+        <div class="employee-photo-section">
+          <img id="modalPhotoPreview" src="../logo.png" alt="Employee Photo" class="modal-photo" />
+
+          <div class="photo-actions">
+            <button id="zoomPhotoBtn" class="small-btn" type="button">Zoom</button>
+            <button id="downloadPhotoBtn" class="small-btn" type="button">Download</button>
           </div>
 
-          <div id="editPhotoWrap" class="edit-file-wrap hidden">
-            <label for="editPhotoInput" class="edit-upload-label">Replace Photo</label>
-            <input type="file" id="editPhotoInput" accept="image/*">
+          <div id="editPhotoWrap" class="edit-upload-wrap hidden">
+            <label for="editPhotoInput">Change Photo</label>
+            <input type="file" id="editPhotoInput" accept="image/*" />
           </div>
         </div>
 
-        <div class="profile-main-info">
-          <div class="form-grid">
-            <div class="modal-field">
-              <label>Full Name</label>
-              <p id="viewFullName">-</p>
-              <input type="text" id="editFullName" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>Email</label>
-              <p id="viewEmail">-</p>
-              <input type="email" id="editEmail" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>Mobile</label>
-              <p id="viewMobile">-</p>
-              <input type="text" id="editMobile" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>Emergency Contact</label>
-              <p id="viewEmergency">-</p>
-              <input type="text" id="editEmergency" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field full-width">
-              <label>Address</label>
-              <p id="viewAddress">-</p>
-              <textarea id="editAddress" class="edit-input hidden" rows="3"></textarea>
-            </div>
-
-            <div class="modal-field">
-              <label>Designation</label>
-              <p id="viewDesignation">-</p>
-              <input type="text" id="editDesignation" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>Experience Type</label>
-              <p id="viewExperience">-</p>
-              <select id="editExperience" class="edit-input hidden">
-                <option value="Fresher">Fresher</option>
-                <option value="Experienced">Experienced</option>
-              </select>
-            </div>
-
-            <div class="modal-field">
-              <label>Outlet Name</label>
-              <p id="viewOutlet">-</p>
-              <input type="text" id="editOutlet" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>Salary</label>
-              <p id="viewSalary">-</p>
-              <input type="number" id="editSalary" class="edit-input hidden">
-            </div>
-
-            <div class="modal-field">
-              <label>ID Type</label>
-              <p id="viewIdType">-</p>
-              <select id="editIdType" class="edit-input hidden">
-                <option value="Aadhaar Card">Aadhaar Card</option>
-                <option value="PAN Card">PAN Card</option>
-                <option value="Voter ID">Voter ID</option>
-                <option value="Driving License">Driving License</option>
-                <option value="Passport">Passport</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-
-            <div class="modal-field">
-              <label>ID Number</label>
-              <p id="viewIdNumber">-</p>
-              <input type="text" id="editIdNumber" class="edit-input hidden">
-            </div>
-          </div>
+        <div class="employee-basic-info">
+          <h2 id="modalEmployeeTitle">Employee Name</h2>
+          <p class="modal-subtitle">Employee Full Profile</p>
         </div>
       </div>
 
-      <!-- ID Proof -->
-      <div class="documents-section">
-        <div class="section-row">
+      <!-- Employee Details -->
+      <div class="modal-grid">
+
+        <div class="modal-field">
+          <label>Full Name</label>
+          <p id="viewFullName">N/A</p>
+          <input type="text" id="editFullName" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Email</label>
+          <p id="viewEmail">N/A</p>
+          <input type="email" id="editEmail" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Mobile</label>
+          <p id="viewMobile">N/A</p>
+          <input type="text" id="editMobile" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Emergency Contact</label>
+          <p id="viewEmergency">N/A</p>
+          <input type="text" id="editEmergency" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Address</label>
+          <p id="viewAddress">N/A</p>
+          <textarea id="editAddress" class="edit-input hidden" rows="3"></textarea>
+        </div>
+
+        <div class="modal-field">
+          <label>Designation</label>
+          <p id="viewDesignation">N/A</p>
+          <input type="text" id="editDesignation" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Experience</label>
+          <p id="viewExperience">N/A</p>
+          <select id="editExperience" class="edit-input hidden">
+            <option value="Fresher">Fresher</option>
+            <option value="Experienced">Experienced</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label>Outlet Name</label>
+          <p id="viewOutlet">N/A</p>
+          <input type="text" id="editOutlet" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>Salary</label>
+          <p id="viewSalary">N/A</p>
+          <input type="number" id="editSalary" class="edit-input hidden" />
+        </div>
+
+        <div class="modal-field">
+          <label>ID Type</label>
+          <p id="viewIdType">N/A</p>
+          <select id="editIdType" class="edit-input hidden">
+            <option value="Aadhaar Card">Aadhaar Card</option>
+            <option value="PAN Card">PAN Card</option>
+            <option value="Voter ID">Voter ID</option>
+            <option value="Driving License">Driving License</option>
+            <option value="Passport">Passport</option>
+          </select>
+        </div>
+
+        <div class="modal-field">
+          <label>ID Number</label>
+          <p id="viewIdNumber">N/A</p>
+          <input type="text" id="editIdNumber" class="edit-input hidden" />
+        </div>
+
+      </div>
+
+      <!-- ID Proof Section -->
+      <div class="doc-section">
+        <div class="doc-section-header">
           <h3>ID Proof</h3>
-          <div class="section-row-actions">
-            <button id="downloadIdProofBtn" class="small-btn">Download</button>
-          </div>
+          <button id="downloadIdProofBtn" class="small-btn" type="button">Download ID Proof</button>
         </div>
 
-        <div id="idProofContainer" class="single-doc-box">
-          <div id="idProofPreviewArea" class="doc-preview-card">
-            <p>No ID proof uploaded</p>
-          </div>
+        <div id="idProofPreviewArea" class="id-proof-preview-area">
+          <p>No ID proof uploaded</p>
         </div>
 
-        <div id="editIdProofWrap" class="edit-file-wrap hidden">
-          <label for="editIdProofInput" class="edit-upload-label">Replace ID Proof</label>
-          <input type="file" id="editIdProofInput" accept=".jpg,.jpeg,.png,.pdf">
+        <div id="editIdProofWrap" class="edit-upload-wrap hidden">
+          <label for="editIdProofInput">Replace ID Proof</label>
+          <input type="file" id="editIdProofInput" accept="image/*,.pdf" />
         </div>
       </div>
 
       <!-- Other Documents -->
-      <div class="documents-section">
-        <div class="section-row">
-          <h3>Other Documents</h3>
+      <div class="doc-section">
+        <div class="doc-section-header">
+          <h3>Employee Documents</h3>
         </div>
 
         <div id="documentsGrid" class="documents-grid">
           <p class="no-docs-text">No documents uploaded</p>
         </div>
 
-        <div id="editDocumentsWrap" class="edit-file-wrap hidden">
-          <label for="editDocumentsInput" class="edit-upload-label">Replace / Add Documents</label>
-          <input type="file" id="editDocumentsInput" multiple accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+        <div id="editDocumentsWrap" class="edit-upload-wrap hidden">
+          <label for="editDocumentsInput">Replace / Add Documents</label>
+          <input type="file" id="editDocumentsInput" multiple accept="image/*,.pdf,.doc,.docx" />
         </div>
+      </div>
+
+      <!-- Modal Buttons -->
+      <div class="modal-actions">
+        <button id="editEmployeeBtn" class="action-btn" type="button">Edit Employee</button>
+        <button id="saveEmployeeBtn" class="action-btn hidden" type="button">Save Changes</button>
+        <button id="cancelEditBtn" class="action-btn secondary-btn hidden" type="button">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- ZOOM / PREVIEW MODAL -->
-  <div id="previewModal" class="preview-modal hidden">
-    <div class="preview-card">
-      <button id="closePreviewBtn" class="close-modal-btn">&times;</button>
+  <!-- Preview Modal -->
+  <div id="previewModal" class="modal hidden">
+    <div class="modal-content preview-modal-content">
+      <button id="closePreviewBtn" class="close-btn">&times;</button>
       <div id="previewBody" class="preview-body"></div>
     </div>
   </div>

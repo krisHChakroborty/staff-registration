@@ -1,0 +1,159 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: #0b0b0b;
+  color: #fff;
+  min-height: 100vh;
+}
+
+.details-page {
+  min-height: 100vh;
+  padding: 30px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.details-card {
+  width: 100%;
+  max-width: 1200px;
+  background: #121212;
+  border: 1px solid rgba(255, 204, 0, 0.15);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.top-bar {
+  height: 6px;
+  background: linear-gradient(90deg, #ffcc00, #ff9900);
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  border-radius: 14px;
+  background: #1b1b1b;
+  padding: 8px;
+}
+
+.brand h1 {
+  font-size: 26px;
+  color: #ffcc00;
+}
+
+.brand p {
+  color: #ccc;
+  margin-top: 4px;
+}
+
+.back-btn {
+  text-decoration: none;
+  background: #ffcc00;
+  color: #111;
+  font-weight: 600;
+  padding: 12px 18px;
+  border-radius: 12px;
+  transition: 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+}
+
+.loading-message {
+  padding: 28px;
+  color: #ddd;
+  font-size: 16px;
+}
+
+.details-content {
+  padding: 28px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #ffcc00;
+  margin: 24px 0 16px;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.detail-box {
+  background: #1a1a1a;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.detail-box span {
+  display: block;
+  font-size: 13px;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.detail-box p {
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+  word-break: break-word;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .header-row {
+    padding: 20px;
+  }
+
+  .details-content {
+    padding: 20px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .brand h1 {
+    font-size: 22px;
+  }
+
+  .logo {
+    width: 54px;
+    height: 54px;
+  }
+}
