@@ -3,49 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FirstWave Fries HRMS</title>
+  <title>FirstWave HRMS</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-grid"></div>
 
-  <div class="bg-shape bg1"></div>
-  <div class="bg-shape bg2"></div>
-
-  <main class="hero">
+  <main class="home-wrapper">
     <section class="hero-card">
-
-      <div class="brand">
-        <div class="logo-wrap">
-          <img src="logo.png" alt="FirstWave Fries Logo">
-        </div>
+      <div class="brand-top">
+        <div class="brand-badge">FW</div>
 
         <div class="brand-text">
-          <h1>FirstWave Fries</h1>
-          <p>Employee Management System</p>
+          <p class="mini-label">Employee Management System</p>
+          <h1>FirstWave HRMS</h1>
+          <p class="hero-subtitle">
+            Manage employee registration, records, documents and admin operations from one place.
+          </p>
         </div>
       </div>
 
-      <div class="hero-content">
-        <span class="badge">Smart Staff Management</span>
-        <h2>Manage Your Team Like a Professional</h2>
-        <p>
-          Employee registration, attendance, salary, leave tracking and documents —
-          all in one clean dashboard for FirstWave Fries.
-        </p>
+      <div class="panel-grid">
+        <a href="pages/register.html" class="panel-btn primary">
+          <div class="panel-icon">👤</div>
+          <div class="panel-text">
+            <span class="panel-title">Employee Registration</span>
+            <span class="panel-desc">Add employee details, upload photo, ID proof and documents</span>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
 
-        <div class="hero-buttons">
-          <a href="pages/register.html" class="btn btn-primary">👨‍🍳 Staff Registration</a>
-          <a href="pages/login.html" class="btn btn-secondary">🔐 Admin Login</a>
-        </div>
+        <a href="pages/login.html" class="panel-btn secondary">
+          <div class="panel-icon">🛠</div>
+          <div class="panel-text">
+            <span class="panel-title">Admin Dashboard</span>
+            <span class="panel-desc">Login to search, manage and review employee records</span>
+          </div>
+          <span class="panel-arrow">→</span>
+        </a>
       </div>
 
+      <div class="hero-footer">
+        <div class="footer-chip">Secure employee records</div>
+        <div class="footer-chip">Firebase powered</div>
+        <div class="footer-chip">FirstWave Fries HRMS</div>
+      </div>
     </section>
   </main>
-
 </body>
 </html>

@@ -1,9 +1,5 @@
 import { db } from "../firebase-config.js";
-import {
-  collection,
-  addDoc,
-  serverTimestamp
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
 const registerForm = document.getElementById("registerForm");
 const message = document.getElementById("message");
@@ -23,13 +19,16 @@ registerForm.addEventListener("submit", async (e) => {
   const idType = document.getElementById("idType").value;
   const idNumber = document.getElementById("idNumber").value.trim();
 
+  // ✅ NEW FIELD (JOINING DATE)
+  const joiningDate = document.getElementById("joiningDate").value;
+
   if (!fullName || !mobile || !designation || !experienceType) {
     message.style.color = "#ff5c5c";
-    message.textContent = "Please fill all required fields.";
+    message.textContent = "Please fill required fields.";
     return;
   }
 
-  message.style.color = "#ffffff";
+  message.style.color = "#fff";
   message.textContent = "Saving employee...";
 
   try {
@@ -45,18 +44,23 @@ registerForm.addEventListener("submit", async (e) => {
       salary: salary ? Number(salary) : 0,
       idType,
       idNumber,
+
+      // ✅ IMPORTANT
+      joiningDate: joiningDate || "",
+
       createdAt: serverTimestamp()
     };
 
     await addDoc(collection(db, "employees"), employeeData);
 
-    message.style.color = "#4CAF50";
-    message.textContent = "Employee registered successfully!";
+    message.style.color = "lightgreen";
+    message.textContent = "Employee saved successfully!";
+
     registerForm.reset();
 
   } catch (error) {
-    console.error("Error saving employee:", error);
-    message.style.color = "#ff5c5c";
+    console.error(error);
+    message.style.color = "red";
     message.textContent = "Save failed: " + error.message;
   }
 });
